@@ -32,6 +32,7 @@ registrationForm.addEventListener('submit', async (e) => {
     try {
         await createUserWithEmailAndPassword(auth, fakeEmail, pass);
         alert("¡Cuenta creada!");
+        window.location.href = "main.html"; 
     } catch (error) {
         alert("Error: " + error.message);
     }
@@ -47,8 +48,7 @@ googleBtn.addEventListener('click', async () => {
         const user = result.user;
         alert(`Bienvenido, ${user.displayName}`);
         console.log("Datos de Google:", user);
-        
-        // Aquí podrías redirigir a la zona privada
+        window.location.href = "main.html"; 
     } catch (error) {
         console.error("Error con Google:", error);
         alert("No se pudo iniciar sesión con Google.");
@@ -76,7 +76,6 @@ if (loginForm) {
             
             // Redirección a la página principal
             window.location.href = "main.html"; 
-            
         } catch (error) {
             console.error("Error al iniciar sesión:", error.code);
             
