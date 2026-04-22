@@ -28,10 +28,10 @@ onAuthStateChanged(auth, (user) => {
         console.log("Usuario detectado en la página");
     } else {
         const esPaginaPrivada = paginasPrivadas.some(pagina => urlActual.includes(pagina));
-        
+
         if (esPaginaPrivada) {
             console.log("Intento de acceso no autorizado. Redirigiendo...");
-            window.location.href = "login.html";
+            window.location.href = "login";
         }
         userImg.src = "img/student.png";
         console.log("No hay sesión iniciada");
