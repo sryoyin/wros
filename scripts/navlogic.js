@@ -16,10 +16,10 @@ const userImg = document.getElementById("accimg");
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // --- SI HAY UN USUARIO LOGUEADO ---
-        if (user.providerData[0].providerId === 'google.com') {
-            userImg.src = user.photoURL;
+        if (user.providerData.some(p => p.providerId === 'google.com')) {
+                userImg.src = user.photoURL;
             }
+            console.log("Usuario detectado en la página");
         } else {
             console.log("No hay sesión iniciada");
         }
