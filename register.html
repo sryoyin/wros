@@ -10,7 +10,7 @@
         <!-- BARRA DE NAVEGACIÓN -->
         <nav>
             <section>
-                <button style="padding: 15px 20px;"><img src="img/student.png" width="50px"></button>
+                <button style="padding: 15px 20px;"><img id = accimg src="img/student.png" width="50px"></button>
                 <span>WHITE ROOM</span>
             </section>
             <section style="gap: 0;">
@@ -20,7 +20,7 @@
             </section>
         </nav>
         <!-- PÁGINA -->
-        <form>
+        <form id="register-form">
             <h1>Achive your potential now</h1>
             <h2>Create an account today:</h2>
             <section>
@@ -31,9 +31,14 @@
                 <label for="pass">Password:</label>
                 <input type="password" id="pass" required>
             </section>
-            <button type="submit">Create account</button>
-            <button type="button" id="google-btn" style="margin-top: 10px;">Acceder con Google</button>
+            <section>
+                <button type="submit">Create account</button>
+                <button type="button" id="google-btn"><img src="img/google-icon.png" width="20px">Acceder con Google</button>
+            </section>
+            <button onclick="window.location.href='login.html';">Already have an account?</button>
         </form>
+        <!-- SCRIPTS -->
         <script type="module" src="scripts/auth.js"></script>
+        <script type="module" src="scripts/navlogic.js"></script>
     </body>
 </html>

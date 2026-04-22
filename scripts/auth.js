@@ -1,10 +1,11 @@
-// 1. Añadimos GoogleAuthProvider y signInWithPopup a las importaciones
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
     GoogleAuthProvider, 
-    signInWithPopup 
+    signInWithEmailAndPassword, 
+    signInWithPopup, 
+    signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -18,10 +19,10 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider(); // Proveedor de Google
+const provider = new GoogleAuthProvider();
 
-// --- REGISTRO MANUAL (El que ya tenías) ---
-const registrationForm = document.querySelector('form');
+// --- REGISTRO MANUAL ---
+const registrationForm = document.getElementById('register-form');
 registrationForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = document.getElementById('username').value;
@@ -53,3 +54,48 @@ googleBtn.addEventListener('click', async () => {
         alert("No se pudo iniciar sesión con Google.");
     }
 });
+
+// --- INICIO DE SESIÓN MANUAL ---
+const loginForm = document.getElementById('login-form');
+
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('login-user').value;
+        const pass = document.getElementById('login-pass').value;
+        
+        // Usamos la misma "trampa" del email falso que en el registro
+        const fakeEmail = `${username}@whiteroom.com`;
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, fakeEmail, pass);
+            const user = userCredential.user;
+            
+            alert(`Acceso concedido. Bienvenido de nuevo, ${username}.`);
+            
+            // Redirección a la página principal
+            window.location.href = "main.html"; 
+            
+        } catch (error) {
+            console.error("Error al iniciar sesión:", error.code);
+            
+            // Mensajes amigables según el error
+            if (error.code === 'auth/invalid-credential') {
+                alert("Usuario o contraseña incorrectos. Por favor, verifica tus datos.");
+            } else if (error.code === 'auth/user-not-found') {
+                alert("Este usuario no existe en la White Room.");
+            } else {
+                alert("Ocurrió un error inesperado al intentar acceder.");
+            }
+        }
+    });
+}
+
+// --- LOGOUT ---
+const logout = () => {
+    signOut(auth).then(() => {
+        alert("Sesión cerrada.");
+        window.location.href = "login.html";
+    });
+};
