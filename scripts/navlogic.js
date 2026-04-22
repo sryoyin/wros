@@ -17,11 +17,15 @@ const userImg = document.getElementById("accimg");
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        if (user.providerData.some(p => p.providerId === 'google.com')) {
-                userImg.src = user.photoURL;
-            }
-            console.log("Usuario detectado en la página");
+        if (user.providerData.some(p => p.providerId === 'google.com') && user.photoURL) {
+            userImg.src = user.photoURL;
         } else {
-            console.log("No hay sesión iniciada");
+            userImg.src = "img/student.png";
         }
-    });
+        console.log("Usuario detectado en la página");
+    } else {
+        userImg.src = "img/student.png";
+        console.log("No hay sesión iniciada");
+    }
+    userImg.style.opacity = "1";
+});

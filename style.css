@@ -32,6 +32,11 @@ img {
     user-select: none;
 }
 
+#accimg {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
 /* NAVEGACIÓN */
 nav {
     padding: 0 20px;
