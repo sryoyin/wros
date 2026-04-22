@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" href="img/student.png">
+        <meta charset="UTF-8">
+        <title>White Room - Register</title>
+    </head>
+    <body>
+        <!-- BARRA DE NAVEGACIÓN -->
+        <nav>
+            <section>
+                <button style="padding: 15px 20px;"><img src="img/student.png" width="50px"></button>
+                <span>WHITE ROOM</span>
+            </section>
+            <section style="gap: 0;">
+                <button><img src="img/student.png" width="40px">Main</button>
+                <button><img src="img/student.png" width="40px">Schedule</button>
+                <button><img src="img/student.png" width="40px">OAA</button>
+            </section>
+        </nav>
+        <!-- PÁGINA -->
+        <form>
+            <h1>Achive your potential now</h1>
+            <h2>Create an account today:</h2>
+            <section>
+                <label for="username">User:</label>
+                <input type="text" id="username" required>
+            </section>
+            <section>
+                <label for="pass">Password:</label>
+                <input type="password" id="pass" required>
+            </section>
+            <button type="submit">Create account</button>
+            <button type="button" id="google-btn" style="margin-top: 10px;">Acceder con Google</button>
+        </form>
+        <script type="module" src="scripts/auth.js"></script>
+    </body>
+</html>
