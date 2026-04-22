@@ -16,6 +16,9 @@ const auth = getAuth(app);
 const userImg = document.getElementById("accimg");
 
 onAuthStateChanged(auth, (user) => {
+    const paginasPrivadas = ['oaa.html', 'main.html', 'profile.html', 'schedule.html'];
+    const paginaActual = window.location.pathname.split("/").pop();
+
     if (user) {
         if (user.providerData.some(p => p.providerId === 'google.com') && user.photoURL) {
             userImg.src = user.photoURL;
@@ -24,6 +27,10 @@ onAuthStateChanged(auth, (user) => {
         }
         console.log("Usuario detectado en la página");
     } else {
+        if (paginasPrivadas.includes(paginaActual)) {
+            console.log("Intento de acceso no autorizado. Redirigiendo...");
+            window.location.href = "login.html";
+        }
         userImg.src = "img/student.png";
         console.log("No hay sesión iniciada");
     }
