@@ -31,7 +31,7 @@ onAuthStateChanged(auth, (user) => {
 
         if (esPaginaPrivada) {
             console.log("Intento de acceso no autorizado. Redirigiendo...");
-            window.location.href = "login";
+            window.location.replace("login");
         }
         userImg.src = "img/student.png";
         console.log("No hay sesión iniciada");
