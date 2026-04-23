@@ -44,11 +44,11 @@ const googleBtn = document.getElementById('google-btn');
 googleBtn.addEventListener('click', async () => {
     try {
         const result = await signInWithPopup(auth, provider);
-        // Esto te da los datos del usuario de Google
         const user = result.user;
+
         alert(`Bienvenido, ${user.displayName}`);
         console.log("Datos de Google:", user);
-        window.location.href = "main.html"; 
+        window.location.href = "main"; 
     } catch (error) {
         console.error("Error con Google:", error);
         alert("No se pudo iniciar sesión con Google.");
@@ -64,8 +64,7 @@ if (loginForm) {
 
         const username = document.getElementById('login-user').value;
         const pass = document.getElementById('login-pass').value;
-        
-        // Usamos la misma "trampa" del email falso que en el registro
+
         const fakeEmail = `${username}@whiteroom.com`;
 
         try {
@@ -74,12 +73,10 @@ if (loginForm) {
             
             alert(`Acceso concedido. Bienvenido de nuevo, ${username}.`);
             
-            // Redirección a la página principal
             window.location.href = "main.html"; 
         } catch (error) {
             console.error("Error al iniciar sesión:", error.code);
             
-            // Mensajes amigables según el error
             if (error.code === 'auth/invalid-credential') {
                 alert("Usuario o contraseña incorrectos. Por favor, verifica tus datos.");
             } else if (error.code === 'auth/user-not-found') {
