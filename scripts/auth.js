@@ -23,20 +23,24 @@ const provider = new GoogleAuthProvider();
 
 // --- REGISTRO MANUAL ---
 const registrationForm = document.getElementById('register-form');
-registrationForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const pass = document.getElementById('pass').value;
-    const fakeEmail = `${username}@whiteroom.com`;
 
-    try {
-        await createUserWithEmailAndPassword(auth, fakeEmail, pass);
-        alert("¡Cuenta creada!");
-        window.location.href = "main.html"; 
-    } catch (error) {
-        alert("Error: " + error.message);
-    }
-});
+if (registrationForm) {
+    registrationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const pass = document.getElementById('pass').value;
+        const fakeEmail = `${username}@whiteroom.com`;
+
+        try {
+            await createUserWithEmailAndPassword(auth, fakeEmail, pass);
+            alert("¡Cuenta creada!");
+            window.location.href = "main.html"; 
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    })
+};
 
 // --- ACCESO CON GOOGLE ---
 const googleBtn = document.getElementById('google-btn');
@@ -85,8 +89,8 @@ if (loginForm) {
                 alert("Ocurrió un error inesperado al intentar acceder.");
             }
         }
-    });
-}
+    })
+};
 
 // --- LOGOUT ---
 const logout = () => {
