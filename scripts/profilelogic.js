@@ -14,7 +14,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 onAuthStateChanged(auth, (user) => {
-    const accdata = [document.getElementById('accimg'), document.getElementById('accname'), document.getElementById('accdate'), document.getElementById('accID')];
+    const accdata = [document.getElementById('accbigimg'), document.getElementById('accname'), document.getElementById('accdate'), document.getElementById('accID')];
     if (user) {
     // Nombre y Foto
     accdata[0].src = user.photoURL || "img/student.png";
@@ -23,7 +23,6 @@ onAuthStateChanged(auth, (user) => {
     // Fecha de creación
     const fecha = new Date(user.metadata.creationTime).toLocaleDateString();
     accdata[2].textContent = `Member since: ${fecha}`;
-    
     // ID
     accdata[3].textContent = `Student ID: ${user.uid.substring(0, 8).toUpperCase()}`;
     }
