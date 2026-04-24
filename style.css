@@ -32,7 +32,8 @@ img {
     user-select: none;
 }
 
-#accimg {
+/* ACCOUNT DATA */
+#accimg, #accname, #accdate, #accID {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
 }
