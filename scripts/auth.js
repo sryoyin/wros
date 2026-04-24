@@ -5,7 +5,6 @@ import {
     GoogleAuthProvider, 
     signInWithEmailAndPassword, 
     signInWithPopup, 
-    signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -90,12 +89,4 @@ if (loginForm) {
             }
         }
     })
-};
-
-// --- LOGOUT ---
-const logout = () => {
-    signOut(auth).then(() => {
-        alert("Sesión cerrada.");
-        window.location.href = "login.html";
-    });
 };

@@ -4,13 +4,13 @@
         <link rel="stylesheet" href="style.css">
         <link rel="icon" href="img/student.png">
         <meta charset="UTF-8">
-        <title>White Room - Main</title>
+        <title>White Room - Profile</title>
     </head>
     <body>
         <!-- BARRA DE NAVEGACIÓN -->
         <nav>
             <section>
-                <button style="padding: 15px 20px;"><img id = accimg src="img/student.png" width="50px"></button>
+                <button onclick="location.href='profile'" style="padding: 15px 20px;"><img id = accimg src="img/student.png" width="50px"></button>
                 <span>WHITE ROOM</span>
             </section>
             <section style="gap: 0;">
@@ -20,7 +20,19 @@
             </section>
         </nav>
         <!-- PÁGINA -->
+        <div class = "🟦" style="justify-content: left; gap: 60px">
+            <img id = accimg src="img/student.png" width="200px">
+            <div>
+                <h1 id = accname>Ayanokoujiuser123</h1>
+                <br>
+                <p id="accID">More data here</p>
+                <p id="accdate">More data here</p>
+                <br>
+                <button id="logoutBtn">Log out</button>
+            </div>
+        </div>
         <!-- SCRIPTS -->
+        <script type="module" src="scripts/profilelogic.js"></script>
         <script type="module" src="scripts/mainlogic.js"></script>
     </body>
 </html>
