@@ -67,6 +67,7 @@ function generateSchedule(savedData = null, isReadOnly = false) {
 
                 options.forEach(option => {
                     const optElement = createElement("option", selector, option);
+                    optElement.value = option;
 
                     if (option === "") {
                         optElement.value = "";
@@ -74,7 +75,8 @@ function generateSchedule(savedData = null, isReadOnly = false) {
                         optElement.disabled = true;
                     }
                 });
-            }   
+            }
+            counter++;
         }
     localhour += 30;
     }
