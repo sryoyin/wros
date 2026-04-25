@@ -15,6 +15,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// --- OPCIONES DE ETIQUETA ---
+let options = ["", "Traslation", "Hygiene", "Breakfast", "Lunch", "Dinner", "Studying", "Homework", "Exercising", "Break", "FAILURE AUDIT", "END OF DAY"];
+
 // --- FUNCIONES ---
 function getTime(time) {
     const hours = Math.floor(time / 60).toString().padStart(2, '0');
@@ -86,9 +89,6 @@ function getLocalWeekNumber(d) {
     const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     return { week: weekNo, year: d.getUTCFullYear() };
 }
-
-// --- OPCIONES DE ETIQUETA ---
-let options = ["", "Traslation", "Hygiene", "Breakfast", "Lunch", "Dinner", "Studying", "Homework", "Exercising", "Break", "FAILURE AUDIT", "END OF DAY"];
 
 // --- CREAR HORARIO ---
 const buttongen = document.getElementById("gen-schedule");
@@ -222,7 +222,7 @@ localparent.addEventListener("submit", async (e) => {
         updatedAt: serverTimestamp()
     });
     alert("Horario sincronizado con éxito.");
-    
+
     } catch (error) {
         console.error("Error al guardar:", error);
     }
