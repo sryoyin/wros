@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -176,15 +176,20 @@ buttongen.addEventListener("click", async () => {
                 select.appendChild(newOpt);
             });
 
-            // 3. GUARDAR EN FIREBASE (Persistencia)
-            // Asumiendo que tienes acceso al 'user' de Firebase Auth
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            await updateDoc(userRef, {
-                customLabels: arrayUnion(newLabel)
-            });
+            if (auth.currentUser) {
+                const userRef = doc(db, "users", auth.currentUser.uid);
+                // Intentar actualizar, si falla (porque el doc no existe), crear uno nuevo
+                await updateDoc(userRef, {
+                    customLabels: arrayUnion(newLabel)
+                }).catch(async (error) => {
+                    if (error.code === 'not-found') {
+                        await setDoc(userRef, { customLabels: [newLabel] });
+                    }
+                });
 
             input.value = ""; // Limpiar input
             alert("Etiqueta añadida y guardada!");
+            }
         }
     });
 
