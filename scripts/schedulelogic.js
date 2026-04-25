@@ -210,17 +210,20 @@ localparent.addEventListener("submit", async (e) => {
     console.log("¡Formulario validado y listo para enviarse a Firebase!");
 
     const scheduleData = {};
-    const selectors = localcontainer.querySelectorAll("select");
+    const selectors = document.querySelectorAll("select");
     
     selectors.forEach((sel, index) => {
         scheduleData[`slot_${index}`] = sel.value;
     });
 
-    // Guardar en Firebase
-    await setDoc(doc(db, "schedules", auth.currentUser.uid), {
+    try {
+        await setDoc(doc(db, "schedules", auth.currentUser.uid), {
         weekData: scheduleData,
         updatedAt: serverTimestamp()
     });
-    
     alert("Horario sincronizado con éxito.");
+    
+    } catch (error) {
+        console.error("Error al guardar:", error);
+    }
 });
