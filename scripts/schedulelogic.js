@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBkcY2_W3oge3KjBCtpv5y9i2mPWlVl5nE",
@@ -12,6 +13,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // --- FUNCIONES ---
 function getTime(time) {
@@ -29,12 +31,13 @@ function createElement(type, parent, text) {
     return element;
 }
 
-function generateSchedule() {
-    localcontainer = createElement("div", localparent);
+function generateSchedule(savedData = null, isReadOnly = false) {
+    const localcontainer = createElement("div", localparent);
     localcontainer.classList.add("📋");
     const rows = 33;
     const columns = 7;
     let localhour = 330;
+    let counter = 0;
 
     labels.forEach(label => {
         const labeldiv = createElement("div", localcontainer);
@@ -50,45 +53,97 @@ function generateSchedule() {
         hourp.style.fontSize = "14px";
 
         for (let j = 0; j < columns; j++) {
-            const selector = createElement("select", localcontainer);
-            selector.required = true;
+            if (isReadOnly && savedData) {
+                // MODO BLOQUEADO
+                const activity = savedData[`slot_${counter}`] || "---";
+                const cell = createElement("div", localcontainer, activity);
+                cell.classList.add("cell-locked"); 
+            } else {
+                const selector = createElement("select", localcontainer);
+                selector.required = true;
 
-            options.forEach(option => {
-                const optElement = createElement("option", selector, option);
+                options.forEach(option => {
+                    const optElement = createElement("option", selector, option);
 
-                if (option === "") {
-                    optElement.value = "";
-                    optElement.textContent = "Select...";
-                    optElement.disabled = true;
-                }
-            });
+                    if (option === "") {
+                        optElement.value = "";
+                        optElement.textContent = "Select...";
+                        optElement.disabled = true;
+                    }
+                });
+            }   
         }
-
     localhour += 30;
     }
 }
 
+function getLocalWeekNumber(d) {
+    // Copiamos la fecha para no modificar la original
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // El lunes es el primer día de la semana en este cálculo
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return { week: weekNo, year: d.getUTCFullYear() };
+}
+
 // --- OPCIONES DE ETIQUETA ---
 let options = ["", "Traslation", "Hygiene", "Breakfast", "Lunch", "Dinner", "Studying", "Homework", "Exercising", "Break", "FAILURE AUDIT", "END OF DAY"];
-
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        // Traer etiquetas del usuario desde Firestore
-        const userSnap = await getDoc(doc(db, "users", user.uid));
-        if (userSnap.exists() && userSnap.data().customLabels) {
-            // Combinar etiquetas base con las del usuario (evitando duplicados)
-            const savedLabels = userSnap.data().customLabels;
-            options = [...new Set([...options, ...savedLabels])];
-        }
-    }
-});
 
 // --- CREAR HORARIO ---
 const buttongen = document.getElementById("gen-schedule");
 const img = document.getElementById("scheduleimg");
 const labels = ["Hour", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 const localparent = document.getElementById("schedule");
-let localcontainer;
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // --- ETIQUETAS ---
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists() && userSnap.data().customLabels) {
+            const savedLabels = userSnap.data().customLabels;
+            options = [...new Set([...options, ...savedLabels])];
+        }
+
+        // --- VERIFICAR SI EXISTE UN HORARIO VIGENTE ---
+        const scheduleRef = doc(db, "schedules", user.uid);
+        const scheduleSnap = await getDoc(scheduleRef);
+
+        if (scheduleSnap.exists()) {
+            const data = scheduleSnap.data();
+            const fechaGuardado = data.updatedAt.toDate();
+            
+            const hoy = getLocalWeekNumber(new Date());
+            const registro = getLocalWeekNumber(fechaGuardado);
+
+            // Si es la misma semana y año, cargamos modo lectura
+            if (hoy.week === registro.week && hoy.year === registro.year) {
+                console.log("Horario vigente detectado.");
+                // --- TITLE ---
+                const title = createElement("h1", localparent, "SCHEDULE");
+                title.style.fontWeight = "600";
+                generateSchedule(data.weekData, true); // True = modo lectura
+
+                // --- FIX ---
+                buttongen.parentElement.remove();
+                img.remove();
+                localparent.style.justifyContent = "center";
+                localparent.style.flexDirection = "column";
+            } else {
+                // Semana vieja: mostrar botón para crear uno nuevo
+                buttongen.style.display = "block";
+            }
+        } else {
+            // Usuario nuevo sin horarios
+            buttongen.style.display = "block";
+        }
+    } else {
+        // Si no hay usuario, podrías redirigir al login o limpiar la pantalla
+        console.log("No hay usuario autenticado.");
+    }
+});
 
 buttongen.addEventListener("click", async () => {
     // --- TITLE ---
@@ -101,10 +156,9 @@ buttongen.addEventListener("click", async () => {
     input.type = "text";
     input.style.marginRight = "20px";
     
-    // --- BOTON PARA AÑADIR NEUVOS LABELS ---
+    // --- BOTON PARA AÑADIR NUEVOS LABELS ---
     const buttonaddlabel = createElement("button", customgen, "Create custom label");
     buttonaddlabel.type = "button";
-    const newLabel = input.value.trim();
     
     buttonaddlabel.addEventListener("click", async () => {
         const newLabel = input.value.trim();
@@ -114,7 +168,7 @@ buttongen.addEventListener("click", async () => {
             options.push(newLabel);
         
             // 2. Actualizar todos los selectores existentes en el DOM
-            const allSelectors = localcontainer.querySelectorAll("select");
+            const allSelectors = document.querySelectorAll(".📋 select");
             allSelectors.forEach(select => {
                 const newOpt = document.createElement("option");
                 newOpt.value = newLabel;
