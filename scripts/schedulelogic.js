@@ -100,7 +100,9 @@ function renderScheduleUI(data = null, isReadOnly = false) {
     if (!isReadOnly) {
         setupCustomLabelUI();
     }
-    generateSchedule(data.weekData, isReadOnly);
+
+    const weekData = data ? data.weekData : null;
+    generateSchedule(weekData, isReadOnly);
 
     if (!isReadOnly) {
         const submitschedule = createElement("button", localparent, "Submit");
@@ -139,7 +141,7 @@ function setupCustomLabelUI() {
 
             const userRef = doc(db, "users", auth.currentUser.uid);
             // Intentar actualizar, si falla (porque el doc no existe), crear uno nuevo
-            await setDoc(userRef, { customlabels: arrayUnion(newLabel) }, { merge: true});
+            await setDoc(userRef, { customLabels: arrayUnion(newLabel) }, { merge: true});
             input.value = "";
             alert("Etiqueta añadida y guardada!");
         }
@@ -190,7 +192,9 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-buttongen.addEventListener("click", async () => renderScheduleUI());
+buttongen.addEventListener("click", async () => {
+    renderScheduleUI();
+});
 
 // --- ENVIAR HORARIO ---
 localparent.addEventListener("submit", async (e) => {
