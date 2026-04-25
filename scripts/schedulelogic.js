@@ -101,18 +101,20 @@ function renderScheduleUI(data = null, isReadOnly = false) {
         setupCustomLabelUI();
     }
 
-    const weekData = data ? data.weekData : null;
-    generateSchedule(weekData, isReadOnly);
+    // Si data existe, sacamos weekData, si no, es null
+    const contentToRender = data ? data.weekData : null;
+    generateSchedule(contentToRender, isReadOnly);
 
     if (!isReadOnly) {
         const submitschedule = createElement("button", localparent, "Submit");
         submitschedule.type = "submit";
     }
-    
-    if (buttongen.parentElement) buttongen.parentElement.remove();
+
+    if (buttongen) buttongen.remove();
     if (img) img.remove();
-    localparent.style.justifyContent = "center";
+    
     localparent.style.flexDirection = "column";
+    localparent.style.alignItems = "center";
 }
 
 function setupCustomLabelUI() {
@@ -156,37 +158,33 @@ const localparent = document.getElementById("schedule");
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // --- ETIQUETAS ---
+        // 1. ESPERAR OBLIGATORIAMENTE A LAS ETIQUETAS
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         
         if (userSnap.exists() && userSnap.data().customLabels) {
             const savedLabels = userSnap.data().customLabels;
+            // Actualizamos el array global antes de cualquier renderizado
             options = [...new Set([...options, ...savedLabels])];
-            console.log("Etiquetas cargadas y actualizadas!", options)
+            console.log("Etiquetas cargadas y actualizadas!", options);
         }
 
-        // --- VERIFICAR SI EXISTE UN HORARIO VIGENTE ---
+        // 2. RECIÉN AHORA VERIFICAMOS EL HORARIO
         const scheduleRef = doc(db, "schedules", user.uid);
         const scheduleSnap = await getDoc(scheduleRef);
 
         if (scheduleSnap.exists()) {
             const data = scheduleSnap.data();
-            const fechaGuardado = data.updatedAt.toDate();
-            
             const hoy = getLocalWeekNumber(new Date());
-            const registro = getLocalWeekNumber(fechaGuardado);
+            const registro = getLocalWeekNumber(data.updatedAt.toDate());
 
-            // Si es la misma semana y año, cargamos modo lectura
             if (hoy.week === registro.week && hoy.year === registro.year) {
-                console.log("Horario vigente detectado.");
-                renderScheduleUI(data.weekData, true);
+                // Aquí ya 'options' tiene las etiquetas custom
+                renderScheduleUI(data, true); 
             } else {
-                // Semana vieja: mostrar botón para crear uno nuevo
                 buttongen.style.display = "block";
             }
         } else {
-            // Usuario nuevo sin horarios
             buttongen.style.display = "block";
         }
     }
