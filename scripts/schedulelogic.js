@@ -92,6 +92,60 @@ function getLocalWeekNumber(d) {
     return { week: weekNo, year: d.getUTCFullYear() };
 }
 
+function renderScheduleUI(data = null, isReadOnly = false) {
+    localparent.innerHTML = "";
+    const title = createElement("h1", localparent, "SCHEDULE");
+    title.style.fontWeight = "600";
+    
+    if (!isReadOnly) {
+        setupCustomLabelUI();
+    }
+    generateSchedule(data.weekData, isReadOnly);
+
+    if (!isReadOnly) {
+        const submitschedule = createElement("button", localparent, "Submit");
+        submitschedule.type = "submit";
+    }
+    
+    if (buttongen.parentElement) buttongen.parentElement.remove();
+    if (img) img.remove();
+    localparent.style.justifyContent = "center";
+    localparent.style.flexDirection = "column";
+}
+
+function setupCustomLabelUI() {
+    // --- INPUT ---
+    const customgen = createElement("section", localparent);
+    const input = createElement("input", customgen, "Create custom activity");
+    input.type = "text";
+    input.placeholder = "New activity";
+    input.style.marginRight = "20px";
+    
+    // --- BOTON PARA AÑADIR NUEVOS LABELS ---
+    const buttonaddlabel = createElement("button", customgen, "Create custom label");
+    buttonaddlabel.type = "button";
+    
+    buttonaddlabel.addEventListener("click", async () => {
+        const newLabel = input.value.trim();
+        if (newLabel && !options.includes(newLabel)) {
+            // 1. Añadir al array local
+            options.push(newLabel);
+        
+            // 2. Actualizar todos los selectores existentes en el DOM
+            document.querySelectorAll(".📋 select").forEach(select => {
+                const newOpt = createElement("option", select, newLabel);
+                newOpt.value = newLabel;
+            });
+
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            // Intentar actualizar, si falla (porque el doc no existe), crear uno nuevo
+            await setDoc(userRef, { customlabels: arrayUnion(newLabel) }, { merge: true});
+            input.value = "";
+            alert("Etiqueta añadida y guardada!");
+        }
+    });
+}
+
 // --- CREAR HORARIO ---
 const buttongen = document.getElementById("gen-schedule");
 const img = document.getElementById("scheduleimg");
@@ -107,6 +161,7 @@ onAuthStateChanged(auth, async (user) => {
         if (userSnap.exists() && userSnap.data().customLabels) {
             const savedLabels = userSnap.data().customLabels;
             options = [...new Set([...options, ...savedLabels])];
+            console.log("Etiquetas cargadas y actualizadas!", options)
         }
 
         // --- VERIFICAR SI EXISTE UN HORARIO VIGENTE ---
@@ -123,16 +178,7 @@ onAuthStateChanged(auth, async (user) => {
             // Si es la misma semana y año, cargamos modo lectura
             if (hoy.week === registro.week && hoy.year === registro.year) {
                 console.log("Horario vigente detectado.");
-                // --- TITLE ---
-                const title = createElement("h1", localparent, "SCHEDULE");
-                title.style.fontWeight = "600";
-                generateSchedule(data.weekData, true); // True = modo lectura
-
-                // --- FIX ---
-                buttongen.parentElement.remove();
-                img.remove();
-                localparent.style.justifyContent = "center";
-                localparent.style.flexDirection = "column";
+                renderScheduleUI(data.weekData, true);
             } else {
                 // Semana vieja: mostrar botón para crear uno nuevo
                 buttongen.style.display = "block";
@@ -141,70 +187,10 @@ onAuthStateChanged(auth, async (user) => {
             // Usuario nuevo sin horarios
             buttongen.style.display = "block";
         }
-    } else {
-        // Si no hay usuario, podrías redirigir al login o limpiar la pantalla
-        console.log("No hay usuario autenticado.");
     }
 });
 
-buttongen.addEventListener("click", async () => {
-    // --- TITLE ---
-    const title = createElement("h1", localparent, "SCHEDULE");
-    title.style.fontWeight = "600";
-    // --- INPUT ---
-    const customgen = createElement("section", localparent);
-
-    const input = createElement("input", customgen, "Create custom activity");
-    input.type = "text";
-    input.style.marginRight = "20px";
-    
-    // --- BOTON PARA AÑADIR NUEVOS LABELS ---
-    const buttonaddlabel = createElement("button", customgen, "Create custom label");
-    buttonaddlabel.type = "button";
-    
-    buttonaddlabel.addEventListener("click", async () => {
-        const newLabel = input.value.trim();
-    
-        if (newLabel && !options.includes(newLabel)) {
-            // 1. Añadir al array local
-            options.push(newLabel);
-        
-            // 2. Actualizar todos los selectores existentes en el DOM
-            const allSelectors = document.querySelectorAll(".📋 select");
-            allSelectors.forEach(select => {
-                const newOpt = document.createElement("option");
-                newOpt.value = newLabel;
-                newOpt.textContent = newLabel;
-                select.appendChild(newOpt);
-            });
-
-            if (auth.currentUser) {
-                const userRef = doc(db, "users", auth.currentUser.uid);
-                // Intentar actualizar, si falla (porque el doc no existe), crear uno nuevo
-                await updateDoc(userRef, {
-                    customLabels: arrayUnion(newLabel)
-                }).catch(async (error) => {
-                    if (error.code === 'not-found') {
-                        await setDoc(userRef, { customLabels: [newLabel] });
-                    }
-                });
-
-            input.value = ""; // Limpiar input
-            alert("Etiqueta añadida y guardada!");
-            }
-        }
-    });
-
-    // --- SCHEDULE ---
-    generateSchedule();
-    const submitschedule = createElement("button", localparent, "Submit ");
-    submitschedule.type = "submit";
-    // --- FIX ---
-    buttongen.parentElement.remove();
-    img.remove();
-    localparent.style.justifyContent = "center";
-    localparent.style.flexDirection = "column";
-});
+buttongen.addEventListener("click", async () => renderScheduleUI());
 
 // --- ENVIAR HORARIO ---
 localparent.addEventListener("submit", async (e) => {
@@ -222,9 +208,9 @@ localparent.addEventListener("submit", async (e) => {
         await setDoc(doc(db, "schedules", auth.currentUser.uid), {
         weekData: scheduleData,
         updatedAt: serverTimestamp()
-    });
-    alert("Horario sincronizado con éxito.");
-
+        });
+        alert("Horario gaurdado!");
+        location.reload();
     } catch (error) {
         console.error("Error al guardar:", error);
     }
