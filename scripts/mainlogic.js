@@ -17,9 +17,16 @@ const userImg = document.getElementById("accimg");
 
 onAuthStateChanged(auth, (user) => {
     const paginasPrivadas = ['main', 'oaa', 'schedule', 'profile'];
+    const paginasInnecesarias = ['', 'index', 'login', 'register']
     const urlActual = window.location.href.toLowerCase();
 
     if (user) {
+        const esPaginaInnecesaria = paginasInnecesarias.some(pagina => urlActual.includes(pagina));
+
+        if (esPaginaInnecesaria) {
+            window.location.replace("main");
+        }
+
         if (user.providerData.some(p => p.providerId === 'google.com') && user.photoURL) {
             userImg.src = user.photoURL;
         } else {
