@@ -16,7 +16,7 @@ const auth = getAuth(app);
 const userImg = document.getElementById("accimg");
 
 onAuthStateChanged(auth, (user) => {
-    const paginasPrivadas = ['main', 'oaa', 'schedule', 'profile'];
+    const paginasPrivadas = [, 'oaa', 'schedule', 'profile'];
     const paginasInnecesarias = ['index', 'login', 'register']
     const urlActual = window.location.href.toLowerCase();
 

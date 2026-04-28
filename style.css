@@ -269,4 +269,96 @@ form button:hover {
     min-height: 40px;
 }
 
-/* OAA */
+/* MAIN GADGETS */
+.⚙️ {
+    display: flex;
+    flex-direction: column;
+    width: 130%;
+    border: #000000;
+    border-width: 2px;
+    border-style: outset;
+    background-color: #151018;
+    user-select: none;
+}
+
+.⚙️ p {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #D1D1D0;
+}
+
+.🗓️ {
+    gap: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.⏰ {
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 12px;
+    background-color: #333333;
+    border: #333333;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 12px;
+}
+
+.⏰ button {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    margin: 0;
+    padding: 20px 10px;
+    gap: 10px;
+    background-color: #333333;
+}
+
+.⏰ button:hover {
+    opacity: 1;
+    transform: none;
+    background-color: #515151;
+    transition: 0.3s ease;
+}
+
+.⏰ button:first-child {
+    border: #333333;
+    border-radius: 12px 12px 0 0;
+}
+
+.⏰ button:not(:last-child) {
+    border-bottom: 2px solid #515151;
+}
+
+.⏰ button:last-child {
+    border: #333333;
+    border-radius: 0 0 12px 12px;
+}
+
+.⏰ button p {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #D1D1D0;
+    word-break: break-word;
+    flex-grow: 1;
+}
+
+.⏰ button section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: fit-content;
+}
+
+.⏰ button section p {
+    font-weight: 500;
+    font-size: 15px;
+}
