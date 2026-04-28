@@ -30,8 +30,10 @@ function createElement(type, parent, classname) {
 }
 
 function formatHour(hOffset) {
-    let hour = (hOffset + 5) % 24;
-    return `${hour.toString().padStart(2, '0')}:30`;
+    const totalMinutes = 330 + (index * 30);
+    const h = Math.floor(totalMinutes / 60) % 24;
+    const m = totalMinutes % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 }
 
 function renderTimeline(weekData) {
@@ -49,15 +51,11 @@ function renderTimeline(weekData) {
         let blocks = [];
         let currentBlock = null;
 
-        // Recorremos las 24 horas del día actual
         for (let h = 0; h < 24; h++) {
-            // CÁLCULO CRÍTICO: En schedulelogic usas (i * 7) + j
-            // h es la hora (i), dayIndex es el día (j)
             const slotIdx = (h * 7) + dayIndex;
             const activity = weekData[`slot_${slotIdx}`] || "";
 
             if (activity === "") {
-                // Si hay un bloque activo y llegamos a un espacio vacío, lo cerramos
                 if (currentBlock) {
                     currentBlock.endH = h;
                     blocks.push(currentBlock);
@@ -67,15 +65,12 @@ function renderTimeline(weekData) {
             }
 
             if (!currentBlock) {
-                // Iniciamos un nuevo bloque
                 currentBlock = { name: activity, startH: h };
             } else if (currentBlock.name !== activity) {
-                // Si la actividad cambia, cerramos el anterior y empezamos uno nuevo
                 currentBlock.endH = h;
                 blocks.push(currentBlock);
                 currentBlock = { name: activity, startH: h };
             }
-            // Si la actividad es la misma, el bucle sigue "apilando" sin hacer nada
         }
 
         // Si al terminar el día quedó un bloque abierto, lo cerramos en la hora 24
