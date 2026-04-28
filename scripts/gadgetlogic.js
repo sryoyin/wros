@@ -51,7 +51,7 @@ function renderTimeline(weekData) {
         let blocks = [];
         let currentBlock = null;
 
-        for (let h = 0; h < 24; h++) {
+        for (let h = 0; h < 33; h++) {
             const slotIdx = (h * 7) + dayIndex;
             const activity = weekData[`slot_${slotIdx}`] || "";
 
@@ -73,13 +73,11 @@ function renderTimeline(weekData) {
             }
         }
 
-        // Si al terminar el día quedó un bloque abierto, lo cerramos en la hora 24
         if (currentBlock) {
             currentBlock.endH = 24;
             blocks.push(currentBlock);
         }
 
-        // Solo añadimos el día al contenedor si tiene actividades
         if (blocks.length > 0) {
             blocks.forEach(b => {
                 const btn = createElement("button", activityWrapper);
