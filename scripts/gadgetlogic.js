@@ -29,7 +29,7 @@ function createElement(type, parent, classname) {
     return element;
 }
 
-function formatHour(hOffset) {
+function formatHour(index) {
     const totalMinutes = 330 + (index * 30);
     const h = Math.floor(totalMinutes / 60) % 24;
     const m = totalMinutes % 60;
