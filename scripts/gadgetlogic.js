@@ -29,58 +29,76 @@ function createElement(type, parent, classname) {
     return element;
 }
 
+function formatHour(hOffset) {
+    let hour = (hOffset + 5) % 24;
+    return `${hour.toString().padStart(2, '0')}:30`;
+}
+
 function renderTimeline(weekData) {
     calendarcontainer.innerHTML = "<h1>CALENDAR</h1>";
     const gadgetContainer = createElement("section", calendarcontainer, "⚙️");
 
     diasSemana.forEach((dia, dayIndex) => {
-        // Crear el div del día 🗓️
-        const dayDiv = createElement("div", gadgetContainer, "🗓️");
+        const dayDiv = document.createElement("div");
+        dayDiv.className = "🗓️";
         dayDiv.innerHTML = `<p>${dia}</p>`;
 
-        const activityWrapper = createElement("div", dayDiv, "⏰");
+        const activityWrapper = createElement("div", dayDiv);
+        activityWrapper.className = "⏰";
 
-        let currentBlocks = [];
-        let startHour = 0;
+        let blocks = [];
+        let currentBlock = null;
 
-        for (let hour = 0; hour <= 24; hour++) {
-            const slotKey = `slot_${(dayIndex * 24) + hour}`;
-            const activity = weekData[slotKey] || "";
+        // Recorremos las 24 horas del día actual
+        for (let h = 0; h < 24; h++) {
+            // CÁLCULO CRÍTICO: En schedulelogic usas (i * 7) + j
+            // h es la hora (i), dayIndex es el día (j)
+            const slotIdx = (h * 7) + dayIndex;
+            const activity = weekData[`slot_${slotIdx}`] || "";
 
-            if (hour > 0) {
-                const prevSlotKey = `slot_${(dayIndex * 24) + (hour - 1)}`;
-                const prevActivity = weekData[prevSlotKey] || "";
-
-                if (activity !== prevActivity || hour === 24) {
-                    if (prevActivity !== "") {
-                        currentBlocks.push({
-                            name: prevActivity,
-                            start: formatTime(startHour),
-                            end: formatTime(hour)
-                        });
-                    }
-                    startHour = hour;
+            if (activity === "") {
+                // Si hay un bloque activo y llegamos a un espacio vacío, lo cerramos
+                if (currentBlock) {
+                    currentBlock.endH = h;
+                    blocks.push(currentBlock);
+                    currentBlock = null;
                 }
+                continue;
             }
+
+            if (!currentBlock) {
+                // Iniciamos un nuevo bloque
+                currentBlock = { name: activity, startH: h };
+            } else if (currentBlock.name !== activity) {
+                // Si la actividad cambia, cerramos el anterior y empezamos uno nuevo
+                currentBlock.endH = h;
+                blocks.push(currentBlock);
+                currentBlock = { name: activity, startH: h };
+            }
+            // Si la actividad es la misma, el bucle sigue "apilando" sin hacer nada
         }
 
-        if (currentBlocks.length > 0) {
-            currentBlocks.forEach(block => {
+        // Si al terminar el día quedó un bloque abierto, lo cerramos en la hora 24
+        if (currentBlock) {
+            currentBlock.endH = 24;
+            blocks.push(currentBlock);
+        }
+
+        // Solo añadimos el día al contenedor si tiene actividades
+        if (blocks.length > 0) {
+            blocks.forEach(b => {
                 const btn = createElement("button", activityWrapper);
                 btn.innerHTML = `
-                    <p>${block.name}</p>
+                    <p>${b.name}</p>
                     <section>
                         <img src="img/clock.png" width="22px">
-                        <p style="font-size: 15px;">${block.start} - ${block.end}</p>
+                        <p style="font-size: 15px;">${formatHour(b.startH)} - ${formatHour(b.endH)}</p>
                     </section>
                 `;
             });
+            gadgetContainer.appendChild(dayDiv);
         }
     });
-}
-
-function formatTime(h) {
-    return `${h.toString().padStart(2, '0')}:00`;
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -92,7 +110,7 @@ onAuthStateChanged(auth, async (user) => {
             const data = docSnap.data().weekData;
             renderTimeline(data);
         } else {
-            calendarcontainer.innerHTML = "<h1>No schedule found. Go to Schedule to create one!</h1>";
+            calendarcontainer.innerHTML = "<h1>No schedule found.</h1>";
         }
     }
 });
