@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBkcY2_W3oge3KjBCtpv5y9i2mPWlVl5nE",
@@ -22,6 +22,24 @@ const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SAT
 // --- IMPORTED LOGIC ---
 import { hideLoader } from "./mainlogic.js";
 
+// --- PROGRESS LOGIC ---
+const getTodayID = () => new Date().toISOString().split('T')[0];
+
+async function saveProgress(userId) {
+    // Reference: schedules -> usuario -> dailyProgress -> fechaHoy
+    const progressRef = doc(db, "schedules", userId, "dailyProgress", getTodayID());
+    
+    try {
+        await setDoc(progressRef, { 
+            completedCount: increment(1) 
+        }, { merge: true });
+        
+        console.log("Progreso actualizado");
+    } catch (error) {
+        console.error("Error al guardar progreso:", error);
+    }
+}
+
 // --- FUNCTIONS ---
 function createElement(type, parent, classname) {
     const element = document.createElement(type);
@@ -39,22 +57,27 @@ function formatHour(index) {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 }
 
-function renderTimeline(weekData) {
+function getCurrentSlot() {
+    const now = new Date();
+    const minutesSinceMidnight = (now.getHours() * 60) + now.getMinutes();
+    return (minutesSinceMidnight - 330) / 30;
+}
+
+function renderTimeline(weekData, completedCount, userId) {
     calendarcontainer.innerHTML = "<h1>CALENDAR</h1>";
     const gadgetContainer = createElement("section", calendarcontainer, "⚙️");
 
     const dayIndex = (new Date().getDay() + 6) % 7; 
     const dia = diasSemana[dayIndex];
 
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "🗓️";
+    const dayDiv = createElement("div", gadgetContainer, "🗓️");
     dayDiv.innerHTML = `<p>${dia}</p>`;
-
     const activityWrapper = createElement("div", dayDiv, "⏰");
 
     let blocks = [];
     let currentBlock = null;
 
+    // --- PROCESAMIENTO DE SLOTS ---
     for (let h = 0; h < 48; h++) {
         const slotIdx = (h * 7) + dayIndex;
         const activity = weekData[`slot_${slotIdx}`] || "";
@@ -76,15 +99,21 @@ function renderTimeline(weekData) {
             currentBlock = { name: activity, startH: h };
         }
     }
+    if (currentBlock) { currentBlock.endH = 48; blocks.push(currentBlock); }
 
-    if (currentBlock) {
-        currentBlock.endH = 48;
-        blocks.push(currentBlock);
-    }
+    // --- APLICACIÓN DE REGLAS (FILTRADO Y TOLERANCIA) ---
+    const currentSlot = getCurrentSlot();
+    const tolerance = 10 / 30;
 
-    if (blocks.length > 0) {
-        blocks.forEach(b => {
-            const btn = document.createElement("button");
+    // Filter A: ACTIVITIES NOT FINISHED IN 10 MIN
+    const validBlocks = blocks.filter(b => currentSlot <= (b.endH + tolerance));
+
+    // Filter B: CHECKED ACTIVITIES
+    const pendingBlocks = validBlocks.slice(completedCount);
+
+    if (pendingBlocks.length > 0) {
+        pendingBlocks.forEach((b, index) => {
+            const btn = createElement("button", activityWrapper);
             btn.innerHTML = `
                 <p>${b.name}</p>
                 <section>
@@ -92,13 +121,23 @@ function renderTimeline(weekData) {
                     <p style="font-size: 15px;">${formatHour(b.startH)} - ${formatHour(b.endH)}</p>
                 </section>
             `;
-            activityWrapper.appendChild(btn);
+
+            // RULES
+            if (index === 0) {
+                btn.onclick = () => {
+                    saveProgress(userId);
+                    btn.remove();
+                };
+            } else {
+                btn.style.cursor = "not-allowed";
+                btn.title = "Debes completar la actividad anterior primero.";
+            }
         });
-        gadgetContainer.appendChild(dayDiv);
     } else {
-        dayDiv.innerHTML += `<p style="font-size: 14px; padding: 10px; color: #888;">No hay actividades para hoy.</p>`;
-        gadgetContainer.appendChild(dayDiv);
+        dayDiv.innerHTML += `<p style="font-size: 14px; padding: 10px; color: #888;">No hay actividades pendientes para este momento.</p>`;
     }
+
+    hideLoader();
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -106,9 +145,14 @@ onAuthStateChanged(auth, async (user) => {
         const docRef = doc(db, "schedules", user.uid);
         const docSnap = await getDoc(docRef);
 
+        // PROGRESS
+        const progressRef = doc(db, "schedules", user.uid, "dailyProgress", getTodayID());
+        const progressSnap = await getDoc(progressRef);
+        let completedCount = progressSnap.exists() ? progressSnap.data().completedCount : 0;
+
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
-            renderTimeline(data);
+            renderTimeline(data, completedCount, user.uid);
         } else {
             calendarcontainer.innerHTML = "<h1>No schedule found.</h1>";
         }

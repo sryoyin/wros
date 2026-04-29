@@ -17,6 +17,7 @@ const auth = getAuth(app);
 export function hideLoader() {
     const loader = document.getElementById("global-loader");
     if (loader) {
+        loader.style.opacity = "0";
         loader.style.visibility = "hidden";
     }
 }
