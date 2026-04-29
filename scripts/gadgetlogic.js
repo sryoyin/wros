@@ -40,58 +40,62 @@ function renderTimeline(weekData) {
     calendarcontainer.innerHTML = "<h1>CALENDAR</h1>";
     const gadgetContainer = createElement("section", calendarcontainer, "⚙️");
 
-    diasSemana.forEach((dia, dayIndex) => {
-        const dayDiv = document.createElement("div");
-        dayDiv.className = "🗓️";
-        dayDiv.innerHTML = `<p>${dia}</p>`;
+    const dayIndex = (new Date().getDay() + 6) % 7; 
+    const dia = diasSemana[dayIndex];
 
-        const activityWrapper = createElement("div", dayDiv);
-        activityWrapper.className = "⏰";
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "🗓️";
+    dayDiv.innerHTML = `<p>${dia}</p>`;
 
-        let blocks = [];
-        let currentBlock = null;
+    const activityWrapper = createElement("div", dayDiv, "⏰");
 
-        for (let h = 0; h < 33; h++) {
-            const slotIdx = (h * 7) + dayIndex;
-            const activity = weekData[`slot_${slotIdx}`] || "";
+    let blocks = [];
+    let currentBlock = null;
 
-            if (activity === "") {
-                if (currentBlock) {
-                    currentBlock.endH = h;
-                    blocks.push(currentBlock);
-                    currentBlock = null;
-                }
-                continue;
-            }
+    for (let h = 0; h < 48; h++) {
+        const slotIdx = (h * 7) + dayIndex;
+        const activity = weekData[`slot_${slotIdx}`] || "";
 
-            if (!currentBlock) {
-                currentBlock = { name: activity, startH: h };
-            } else if (currentBlock.name !== activity) {
+        if (activity === "") {
+            if (currentBlock) {
                 currentBlock.endH = h;
                 blocks.push(currentBlock);
-                currentBlock = { name: activity, startH: h };
+                currentBlock = null;
             }
+            continue;
         }
 
-        if (currentBlock) {
-            currentBlock.endH = 24;
+        if (!currentBlock) {
+            currentBlock = { name: activity, startH: h };
+        } else if (currentBlock.name !== activity) {
+            currentBlock.endH = h;
             blocks.push(currentBlock);
+            currentBlock = { name: activity, startH: h };
         }
+    }
 
-        if (blocks.length > 0) {
-            blocks.forEach(b => {
-                const btn = createElement("button", activityWrapper);
-                btn.innerHTML = `
-                    <p>${b.name}</p>
-                    <section>
-                        <img src="img/clock.png" width="22px">
-                        <p style="font-size: 15px;">${formatHour(b.startH)} - ${formatHour(b.endH)}</p>
-                    </section>
-                `;
-            });
-            gadgetContainer.appendChild(dayDiv);
-        }
-    });
+    if (currentBlock) {
+        currentBlock.endH = 48;
+        blocks.push(currentBlock);
+    }
+
+    if (blocks.length > 0) {
+        blocks.forEach(b => {
+            const btn = document.createElement("button");
+            btn.innerHTML = `
+                <p>${b.name}</p>
+                <section>
+                    <img src="img/clock.png" width="22px">
+                    <p style="font-size: 15px;">${formatHour(b.startH)} - ${formatHour(b.endH)}</p>
+                </section>
+            `;
+            activityWrapper.appendChild(btn);
+        });
+        gadgetContainer.appendChild(dayDiv);
+    } else {
+        dayDiv.innerHTML += `<p style="font-size: 14px; padding: 10px; color: #888;">No hay actividades para hoy.</p>`;
+        gadgetContainer.appendChild(dayDiv);
+    }
 }
 
 onAuthStateChanged(auth, async (user) => {
