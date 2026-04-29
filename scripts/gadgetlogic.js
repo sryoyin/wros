@@ -25,13 +25,13 @@ import { hideLoader } from "./mainlogic.js";
 // --- PROGRESS LOGIC ---
 const getTodayID = () => new Date().toISOString().split('T')[0];
 
-async function saveProgress(userId) {
+async function saveProgress(userId, slots) {
     // Reference: schedules -> usuario -> dailyProgress -> fechaHoy
     const progressRef = doc(db, "schedules", userId, "dailyProgress", getTodayID());
     
     try {
         await setDoc(progressRef, { 
-            completedCount: increment(1) 
+            completedCount: increment(slots) 
         }, { merge: true });
         
         console.log("Progreso actualizado");
@@ -109,7 +109,8 @@ function renderTimeline(weekData, completedCount, userId) {
     const validBlocks = blocks.filter(b => currentSlot <= (b.endH + tolerance));
 
     // Filter B: CHECKED ACTIVITIES
-    const pendingBlocks = validBlocks.slice(completedCount);
+    let pendingBlocks;
+    if (currentSlot <= validBlocks[0].endH + tolerance) { pendingBlocks = validBlocks.slice(completedCount); } else { pendingBlocks = validBlocks; }
 
     if (pendingBlocks.length > 0) {
         pendingBlocks.forEach((b, index) => {
@@ -122,14 +123,23 @@ function renderTimeline(weekData, completedCount, userId) {
                 </section>
             `;
 
-            // RULES
+            const slotsOcupados = b.endH - b.startH;
+
+            // REGLAS
             if (index === 0) {
-                btn.onclick = () => {
-                    saveProgress(userId);
-                    btn.remove();
-                };
+                const diezMinAntesDeAcabar = b.endH - (10 / 30);
+                const yaSePuedeMarcar = currentSlot >= diezMinAntesDeAcabar;
+
+                if (yaSePuedeMarcar) {
+                    btn.onclick = () => saveProgress(userId, slotsOcupados);
+                } else {
+                    btn.style.opacity = "0.7";
+                    btn.style.cursor = "wait";
+                    btn.title = "Aún es muy pronto para marcar esta actividad como completada.";
+                }
             } else {
                 btn.style.cursor = "not-allowed";
+                btn.style.opacity = "0.3";
                 btn.title = "Debes completar la actividad anterior primero.";
             }
         });
