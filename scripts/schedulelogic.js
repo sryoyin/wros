@@ -18,6 +18,9 @@ const db = getFirestore(app);
 // --- OPCIONES DE ETIQUETA ---
 let options = ["", "Traslation", "Hygiene", "Breakfast", "Lunch", "Dinner", "Studying", "Homework", "Exercising", "Break", "FAILURE AUDIT", "END OF DAY"];
 
+// --- IMPORTED LOGIC ---
+import { hideLoader } from "./mainlogic";
+
 // --- FUNCIONES ---
 function getTime(time) {
     const hours = Math.floor(time / 60).toString().padStart(2, '0');
@@ -188,6 +191,7 @@ onAuthStateChanged(auth, async (user) => {
             buttongen.style.display = "block";
         }
     }
+    hideLoader();
 });
 
 buttongen.addEventListener("click", async () => {

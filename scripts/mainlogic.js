@@ -13,10 +13,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// --- FUNCTIONS ---
+export function hideLoader() {
+    const loader = document.getElementById("global-loader");
+    if (loader) {
+        loader.style.visibility = "hidden";
+    }
+}
+
+// --- USERIMG ---
 const userImg = document.getElementById("accimg");
 
 onAuthStateChanged(auth, (user) => {
-    const paginasPrivadas = [, 'oaa', 'schedule', 'profile'];
+    const paginasPrivadas = ['main', 'oaa', 'schedule', 'profile'];
     const paginasInnecesarias = ['index', 'login', 'register']
     const urlActual = window.location.href.toLowerCase();
 
@@ -44,4 +53,8 @@ onAuthStateChanged(auth, (user) => {
         console.log("No hay sesión iniciada");
     }
     userImg.style.opacity = "1";
+
+    if (!paginasPrivadas.some(pagina => urlActual.includes(pagina))) {
+        hideLoader();
+    }
 });

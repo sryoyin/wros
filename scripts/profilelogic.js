@@ -13,6 +13,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// --- IMPORTED LOGIC ---
+import { hideLoader } from "./mainlogic";
+
 onAuthStateChanged(auth, (user) => {
     const accdata = [document.getElementById('accbigimg'), document.getElementById('accname'), document.getElementById('accdate'), document.getElementById('accID')];
     if (user) {
@@ -27,12 +30,8 @@ onAuthStateChanged(auth, (user) => {
     accdata[3].textContent = `Student ID: ${user.uid.substring(0, 8).toUpperCase()}`;
     }
 
-    // Opacidad
-    accdata.forEach(value => {
-        if (value) {
-            value.style.opacity = "1";
-        }
-    });
+    // Loader
+    hideLoader();
 });
 
 // --- LOGOUT ---

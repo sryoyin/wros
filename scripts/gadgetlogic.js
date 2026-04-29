@@ -19,6 +19,9 @@ const db = getFirestore(app);
 const calendarcontainer = document.getElementById("cal-gadget");
 const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
+// --- IMPORTED LOGIC ---
+import { hideLoader } from "./mainlogic";
+
 // --- FUNCTIONS ---
 function createElement(type, parent, classname) {
     const element = document.createElement(type);
@@ -110,4 +113,5 @@ onAuthStateChanged(auth, async (user) => {
             calendarcontainer.innerHTML = "<h1>No schedule found.</h1>";
         }
     }
+    hideLoader();
 });
