@@ -110,7 +110,7 @@ function renderTimeline(weekData, completedCount, userId) {
 
     // Filter B: CHECKED ACTIVITIES
     let pendingBlocks;
-    if (currentSlot <= validBlocks[0].endH + tolerance) { pendingBlocks = validBlocks.slice(completedCount); } else { pendingBlocks = validBlocks; }
+    if (currentSlot <= validBlocks[0].startH + tolerance) { pendingBlocks = validBlocks.slice(completedCount); } else { pendingBlocks = validBlocks; }
 
     if (pendingBlocks.length > 0) {
         pendingBlocks.forEach((b, index) => {
