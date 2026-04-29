@@ -20,7 +20,7 @@ const calendarcontainer = document.getElementById("cal-gadget");
 const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 // --- IMPORTED LOGIC ---
-import { hideLoader } from "./mainlogic";
+import { hideLoader } from "./mainlogic.js";
 
 // --- FUNCTIONS ---
 function createElement(type, parent, classname) {

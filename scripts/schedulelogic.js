@@ -19,7 +19,7 @@ const db = getFirestore(app);
 let options = ["", "Traslation", "Hygiene", "Breakfast", "Lunch", "Dinner", "Studying", "Homework", "Exercising", "Break", "FAILURE AUDIT", "END OF DAY"];
 
 // --- IMPORTED LOGIC ---
-import { hideLoader } from "./mainlogic";
+import { hideLoader } from "./mainlogic.js";
 
 // --- FUNCIONES ---
 function getTime(time) {

@@ -14,7 +14,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // --- IMPORTED LOGIC ---
-import { hideLoader } from "./mainlogic";
+import { hideLoader } from "./mainlogic.js";
 
 onAuthStateChanged(auth, (user) => {
     const accdata = [document.getElementById('accbigimg'), document.getElementById('accname'), document.getElementById('accdate'), document.getElementById('accID')];
