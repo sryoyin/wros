@@ -113,25 +113,34 @@ function renderTimeline(weekData, completedCount, userId) {
 
     if (pendingBlocks.length > 0) {
         pendingBlocks.forEach((b, index) => {
+            // Creamos el botón manualmente para asegurar la estructura exacta
             const btn = createElement("button", activityWrapper);
+            
+            // Estructura interna: P para el nombre, SECTION para la derecha
+            btn.innerHTML = `
+                <p>${b.name}</p>
+                <section>
+                    <img src="img/clock.png" width="22px">
+                    <p style="font-size: 15px;">${formatHour(b.startH)} - ${formatHour(b.endH)}</p>
+                </section>
+            `;
 
             if (index === 0) {
-                const diezMinAntesDeAcabar = b.endH - (10 / 30);
-                
-                const ventanaAbierta = currentSlot >= diezMinAntesDeAcabar && currentSlot <= (b.endH + tolerance);
+                const diezMinAntes = b.endH - (10 / 30);
+                const ventanaAbierta = currentSlot >= diezMinAntes && currentSlot <= (b.endH + tolerance);
 
                 if (ventanaAbierta) {
                     const slotsParaSumar = b.endH - completedCount;
                     btn.onclick = () => saveProgress(userId, slotsParaSumar);
-                    btn.style.borderLeft = "5px solid #4CAF50";
+                    btn.style.cursor = "pointer";
                 } else {
                     btn.style.opacity = "0.7";
                     btn.style.cursor = "wait";
-                    btn.style.borderLeft = "5px solid orange";
+                    btn.title = "Espera a que la actividad esté por finalizar.";
                 }
             } else {
-                btn.style.cursor = "not-allowed";
                 btn.style.opacity = "0.3";
+                btn.style.cursor = "not-allowed";
             }
         });
     } else {
