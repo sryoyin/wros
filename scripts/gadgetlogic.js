@@ -103,48 +103,39 @@ function renderTimeline(weekData, completedCount, userId) {
 
     // --- APLICACIÓN DE REGLAS (FILTRADO Y TOLERANCIA) ---
     const currentSlot = getCurrentSlot();
-    const tolerance = 10 / 30;
+    const tolerance = 10 / 30; // 10 min
 
-    // Filter A: ACTIVITIES NOT FINISHED IN 10 MIN
-    const validBlocks = blocks.filter(b => currentSlot <= (b.endH + tolerance));
+    // 1. Filtrar por contador
+    const blocksFiltradosPorContador = blocks.filter(b => b.endH > completedCount);
 
-    // Filter B: CHECKED ACTIVITIES
-    let pendingBlocks;
-    if (currentSlot <= validBlocks[0].startH + tolerance) { pendingBlocks = validBlocks.slice(completedCount); } else { pendingBlocks = validBlocks; }
+    // 2. Filtrar por tiempo
+    const pendingBlocks = blocksFiltradosPorContador.filter(b => currentSlot <= (b.endH + tolerance));
 
     if (pendingBlocks.length > 0) {
         pendingBlocks.forEach((b, index) => {
             const btn = createElement("button", activityWrapper);
-            btn.innerHTML = `
-                <p>${b.name}</p>
-                <section>
-                    <img src="img/clock.png" width="22px">
-                    <p style="font-size: 15px;">${formatHour(b.startH)} - ${formatHour(b.endH)}</p>
-                </section>
-            `;
 
-            const slotsOcupados = b.endH - b.startH;
-
-            // REGLAS
             if (index === 0) {
                 const diezMinAntesDeAcabar = b.endH - (10 / 30);
-                const yaSePuedeMarcar = currentSlot >= diezMinAntesDeAcabar;
+                
+                const ventanaAbierta = currentSlot >= diezMinAntesDeAcabar && currentSlot <= (b.endH + tolerance);
 
-                if (yaSePuedeMarcar) {
-                    btn.onclick = () => saveProgress(userId, slotsOcupados);
+                if (ventanaAbierta) {
+                    const slotsParaSumar = b.endH - completedCount;
+                    btn.onclick = () => saveProgress(userId, slotsParaSumar);
+                    btn.style.borderLeft = "5px solid #4CAF50";
                 } else {
                     btn.style.opacity = "0.7";
                     btn.style.cursor = "wait";
-                    btn.title = "Aún es muy pronto para marcar esta actividad como completada.";
+                    btn.style.borderLeft = "5px solid orange";
                 }
             } else {
                 btn.style.cursor = "not-allowed";
                 btn.style.opacity = "0.3";
-                btn.title = "Debes completar la actividad anterior primero.";
             }
         });
     } else {
-        dayDiv.innerHTML += `<p style="font-size: 14px; padding: 10px; color: #888;">No hay actividades pendientes para este momento.</p>`;
+        dayDiv.innerHTML += `<p style="font-size: 14px; padding: 10px; color: #888;">No hay actividades pendientes.</p>`;
     }
 
     hideLoader();
