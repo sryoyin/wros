@@ -160,9 +160,9 @@ function renderProgress(list) {
 
     dailyprog.style.width = dailypercentage;
     weeklyprog.style.width = weeklypercentage;
-    
-    dailyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = dailypercentage;
-    weeklyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = weeklypercentage;
+
+    dailyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = Math.floor(dailypercentage);
+    weeklyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = Math.floor(weeklypercentage);
 }
 
 onAuthStateChanged(auth, async (user) => {
