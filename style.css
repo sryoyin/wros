@@ -327,6 +327,11 @@ form button:hover {
     flex-direction: column;
 }
 
+.🗓️ section {
+    display: flex;
+    justify-content: space-between;
+}
+
 /* CALENDAR */
 .⏰ {
     border-width: 2px;

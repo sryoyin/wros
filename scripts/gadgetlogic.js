@@ -155,8 +155,14 @@ function renderTimeline(weekData, completedCount, userId) {
 }
 
 function renderProgress(list) {
-    dailyprog.style.width = `${list[1]*100/33}%`;
-    weeklyprog.style.width = `${list[1]*100/231}%`;
+    const dailypercentage = `${list[1]*100/33}%`;
+    const weeklypercentage = `${list[1]*100/231}%`;
+
+    dailyprog.style.width = dailypercentage;
+    weeklyprog.style.width = weeklypercentage;
+    
+    dailyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = dailypercentage;
+    weeklyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = weeklypercentage;
 }
 
 onAuthStateChanged(auth, async (user) => {
