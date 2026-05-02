@@ -17,6 +17,9 @@ const db = getFirestore(app);
 
 // --- USEFULS ---
 const calendarcontainer = document.getElementById("cal-gadget");
+const progcontainer = document.getElementById("prog-gadget");
+const dailyprog = progcontainer.lastChild.firstChild.lastChild.firstChild;
+const weeklyprog = progcontainer.lastChild.lastChild.lastChild.firstChild;
 const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 // --- IMPORTED LOGIC ---
@@ -32,7 +35,7 @@ async function saveProgress(userId, slotsobv, counter) {
     try {
         await setDoc(progressRef, { 
             "completedCount": {
-                [0]: slotsobv, 
+                [0]: increment(slotsobv), 
                 [1]: increment(counter) 
             }
         }, { merge: true });
@@ -117,10 +120,8 @@ function renderTimeline(weekData, completedCount, userId) {
 
     if (pendingBlocks.length > 0) {
         pendingBlocks.forEach((b, index) => {
-            // Creamos el botón manualmente para asegurar la estructura exacta
             const btn = createElement("button", activityWrapper);
-            
-            // Estructura interna: P para el nombre, SECTION para la derecha
+
             btn.innerHTML = `
                 <p>${b.name}</p>
                 <section>
@@ -151,8 +152,11 @@ function renderTimeline(weekData, completedCount, userId) {
     } else {
         dayDiv.innerHTML += `<p style="font-size: 14px; padding: 10px; color: #888;">No hay actividades pendientes.</p>`;
     }
+}
 
-    hideLoader();
+function renderProgress(list) {
+    dailyprog.style.width = `${list[1]*100/33}%`;
+    weeklyprog.style.width = `${list[1]*100/231}%`;
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -168,8 +172,16 @@ onAuthStateChanged(auth, async (user) => {
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
             renderTimeline(data, completedCount, user.uid);
+            renderProgress(completedCount);
         } else {
-            calendarcontainer.innerHTML = "<h1>No schedule found.</h1>";
+            calendarcontainer.innerHTML = `
+                <h1>CALENDAR</h1>
+                <h2>No schedule found</h2>
+            `;
+            progcontainer.innerHTML = `
+                <h1>PROGRESS</h1>
+                <h2>No progress made yet</h2>
+            `;
         }
     }
     hideLoader();

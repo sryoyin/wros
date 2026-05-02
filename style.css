@@ -305,7 +305,7 @@ form button:hover {
 .⚙️ {
     display: flex;
     flex-direction: column;
-    width: 130%;
+    width: 140%;
     border: #000000;
     border-width: 2px;
     border-style: outset;
@@ -327,6 +327,7 @@ form button:hover {
     flex-direction: column;
 }
 
+/* CALENDAR */
 .⏰ {
     border-width: 2px;
     border-style: solid;
@@ -393,4 +394,18 @@ form button:hover {
 .⏰ button section p {
     font-weight: 500;
     font-size: 15px;
+}
+
+/* PROGRESS */
+.📊 {
+    display: block;
+    padding: 2px;
+    background-color: var(--nav-bg);
+}
+
+.📊 div {
+    position: inherit;
+    background-color: ghostwhite;
+    padding: 10px 0;
+    justify-content: flex-start;
 }
