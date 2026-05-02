@@ -137,7 +137,7 @@ function setupCustomLabelUI() {
         if (newLabel && !options.includes(newLabel)) {
             // 1. Añadir al array local
             options.push(newLabel);
-        
+
             // 2. Actualizar todos los selectores existentes en el DOM
             document.querySelectorAll(".📋 select").forEach(select => {
                 const newOpt = createElement("option", select, newLabel);

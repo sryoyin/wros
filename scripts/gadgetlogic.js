@@ -25,16 +25,20 @@ import { hideLoader } from "./mainlogic.js";
 // --- PROGRESS LOGIC ---
 const getTodayID = () => new Date().toISOString().split('T')[0];
 
-async function saveProgress(userId, slots) {
+async function saveProgress(userId, slotsobv, counter) {
     // Reference: schedules -> usuario -> dailyProgress -> fechaHoy
     const progressRef = doc(db, "schedules", userId, "dailyProgress", getTodayID());
     
     try {
         await setDoc(progressRef, { 
-            completedCount: increment(slots) 
+            "completedCount": {
+                [0]: slotsobv, 
+                [1]: increment(counter) 
+            }
         }, { merge: true });
         
         console.log("Progreso actualizado");
+        location.reload();
     } catch (error) {
         console.error("Error al guardar progreso:", error);
     }
@@ -106,7 +110,7 @@ function renderTimeline(weekData, completedCount, userId) {
     const tolerance = 10 / 30; // 10 min
 
     // 1. Filtrar por contador
-    const blocksFiltradosPorContador = blocks.filter(b => b.endH > completedCount);
+    const blocksFiltradosPorContador = blocks.filter(b => b.endH > completedCount[0]);
 
     // 2. Filtrar por tiempo
     const pendingBlocks = blocksFiltradosPorContador.filter(b => currentSlot <= (b.endH + tolerance));
@@ -130,8 +134,9 @@ function renderTimeline(weekData, completedCount, userId) {
                 const ventanaAbierta = currentSlot >= diezMinAntes && currentSlot <= (b.endH + tolerance);
 
                 if (ventanaAbierta) {
-                    const slotsParaSumar = b.endH - completedCount;
-                    btn.onclick = () => saveProgress(userId, slotsParaSumar);
+                    const slotsobviar = b.endH - completedCount[0];
+                    const slotsParaSumar = b.endH - b.startH;
+                    btn.onclick = () => saveProgress(userId, slotsobviar, slotsParaSumar);
                     btn.style.cursor = "pointer";
                 } else {
                     btn.style.opacity = "0.7";
@@ -158,7 +163,7 @@ onAuthStateChanged(auth, async (user) => {
         // PROGRESS
         const progressRef = doc(db, "schedules", user.uid, "dailyProgress", getTodayID());
         const progressSnap = await getDoc(progressRef);
-        let completedCount = progressSnap.exists() ? progressSnap.data().completedCount : 0;
+        let completedCount = progressSnap.exists() ? progressSnap.data().completedCount : [0, 0];
 
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
