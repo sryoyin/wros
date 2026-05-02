@@ -18,8 +18,8 @@ const db = getFirestore(app);
 // --- USEFULS ---
 const calendarcontainer = document.getElementById("cal-gadget");
 const progcontainer = document.getElementById("prog-gadget");
-const dailyprog = progcontainer.lastChild.firstChild.lastChild.firstChild;
-const weeklyprog = progcontainer.lastChild.lastChild.lastChild.firstChild;
+const dailyprog = document.getElementById("dailybar");
+const weeklyprog = document.getElementById("weeklybar");
 const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 // --- IMPORTED LOGIC ---
