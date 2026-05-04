@@ -431,7 +431,7 @@ form button:hover {
     }
 }
 
-@media (max-width: 852px) {
+@media (max-width: 924px) {
     body {
         padding-top: 120px;
     }
@@ -489,6 +489,12 @@ form button:hover {
 
     🗓️ section {
         gap: 15px;
+    }
+}
+
+@media (max-width: 590px) {
+    .⬜ .🧱 {
+        width: 100%;
     }
 }
 
