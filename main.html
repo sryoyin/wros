@@ -5,6 +5,12 @@
         <link rel="icon" href="img/icon.png">
         <meta charset="UTF-8">
         <title>White Room - Main</title>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log("White Room PWA Ready"));
+            }
+        </script>
     </head>
     <body>
         <!-- BARRA DE NAVEGACIÓN -->

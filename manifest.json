@@ -1,0 +1,20 @@
+{
+  "name": "White Room (Alpha)",
+  "short_name": "WhiteRoom",
+  "start_url": "/main.html",
+  "display": "standalone",
+  "background_color": "#0a0a49",
+  "theme_color": "#0a0a49",
+  "icons": [
+    {
+      "src": "img/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
