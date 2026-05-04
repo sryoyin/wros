@@ -28,7 +28,7 @@ import { hideLoader } from "./mainlogic.js";
 // --- PROGRESS LOGIC ---
 const getTodayID = () => new Date().toISOString().split('T')[0];
 
-async function saveProgress(userId, slotsobv, counter) {
+async function saveProgress(userId, slotsobv, counter, parent) {
     // Reference: schedules -> usuario -> dailyProgress -> fechaHoy
     const progressRef = doc(db, "schedules", userId, "dailyProgress", getTodayID());
     
@@ -42,6 +42,7 @@ async function saveProgress(userId, slotsobv, counter) {
         
         console.log("Progreso actualizado");
         location.reload();
+        parent.style.opacity = "0";
     } catch (error) {
         console.error("Error al guardar progreso:", error);
     }
@@ -147,7 +148,7 @@ function renderTimeline(weekData, completedCount, userId) {
                 if (ventanaAbierta) {
                     const slotsobviar = b.endH - completedCount[0];
                     const slotsParaSumar = b.endH - b.startH;
-                    btn.onclick = () => saveProgress(userId, slotsobviar, slotsParaSumar);
+                    btn.onclick = () => saveProgress(userId, slotsobviar, slotsParaSumar, btn);
                     btn.style.cursor = "pointer";
                 } else {
                     btn.style.opacity = "0.7";

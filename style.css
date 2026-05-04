@@ -167,11 +167,6 @@ form button:hover {
 .⬜ {
     background-color: white;
     color: var(--text-black);
-    margin: 0 17%;
-    padding: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     gap: 30px;
 }
 
@@ -220,11 +215,6 @@ form button:hover {
 .🟦 {
     background-color: var(--primary-color);
     color: var(--text-white);
-    margin: 0 17%;
-    padding: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     gap: 40px;
 }
 
@@ -256,6 +246,16 @@ form button:hover {
     opacity: 0.9;
     transform: scale(1.1);
     transition: 0.3s ease;
+}
+
+.⬜, .🟦 {
+    display: flex;
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 40px;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* PARA COLUMNAS DE TEXTO EN UN MISMO DIV */
@@ -354,6 +354,7 @@ form button:hover {
     padding: 20px 10px;
     gap: 10px;
     background-color: #333333;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .⏰ button:hover {
@@ -432,13 +433,12 @@ form button:hover {
 
 @media (max-width: 768px) {
     body {
-        padding-top: 80px;
+        padding-top: 120px;
     }
 
     .⬜, .🟦 {
         flex-direction: column;
         text-align: center;
-        margin: 0 2%;
     }
 
     .⬜ img, .🟦 img {
@@ -447,19 +447,19 @@ form button:hover {
     }
 
     nav {
-        flex-direction: column;
-        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
     }
 
     nav section {
-        width: 100%;
-        justify-content: center;
+        gap: 5px;
+        align-items: center;
     }
 
     nav button {
         padding: 10px 15px;
         font-size: 14px;
-        flex-direction: column; /* Icono arriba, texto abajo */
+        flex-direction: column;
         gap: 5px;
     }
 
@@ -469,12 +469,18 @@ form button:hover {
 
     .📋 {
         display: grid;
-        grid-template-columns: 80px repeat(7, 120px); /* Columnas mínimas fijas */
-        overflow-x: auto; /* Permite scroll horizontal solo dentro de la tabla */
+        grid-template-columns: 80px repeat(7, 120px);
+        overflow-x: auto;
     }
     
     #schedule {
         overflow-x: auto;
-        display: block; /* Cambiamos el flex para evitar conflictos de ancho */
+        display: block;
+    }
+}
+
+@media (max-width: 426px) {
+    nav span {
+        font-size: 20px;
     }
 }
