@@ -226,10 +226,10 @@ localparent.addEventListener("submit", async (e) => {
         await setDoc(docRef, {
         weekData: scheduleData,
         updatedAt: serverTimestamp(),
-        weekNumber: infoSemana.week,
-        year: infoSemana.year
+        weekNumber: weekinfo.week,
+        year: weekinfo.year
         });
-        
+
         alert("Horario gaurdado!");
         location.reload();
     } catch (error) {
