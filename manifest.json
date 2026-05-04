@@ -1,7 +1,7 @@
 {
   "name": "White Room (Alpha)",
-  "short_name": "WhiteRoom",
-  "start_url": "/main.html",
+  "short_name": "White Room",
+  "start_url": "/main",
   "display": "standalone",
   "background_color": "#0a0a49",
   "theme_color": "#0a0a49",
