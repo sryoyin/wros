@@ -173,19 +173,20 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         // 2. RECIÉN AHORA VERIFICAMOS EL HORARIO
-        const scheduleRef = doc(db, "schedules", user.uid);
+        const hoy = getLocalWeekNumber(new Date());
+        const docId = `${hoy.year}_${hoy.week}`;
+
+        const scheduleRef = doc(db, "schedules", auth.currentUser.uid, "scheduled", docId);
         const scheduleSnap = await getDoc(scheduleRef);
 
         if (scheduleSnap.exists()) {
             const data = scheduleSnap.data();
-            const hoy = getLocalWeekNumber(new Date());
-            const registro = getLocalWeekNumber(data.updatedAt.toDate());
+            renderScheduleUI(data, true); 
 
-            if (hoy.week === registro.week && hoy.year === registro.year) {
-                // Aquí ya 'options' tiene las etiquetas custom
-                renderScheduleUI(data, true); 
-            } else {
-                buttongen.style.display = "block";
+            if (new Date().getDay() === 0) {
+                const btnNextWeek = createElement("button", localparent, "Create next schedule");
+                btnNextWeek.style.marginTop = "20px";
+                btnNextWeek.addEventListener("click", () => renderScheduleUI());
             }
         } else {
             buttongen.style.display = "block";
@@ -201,7 +202,6 @@ buttongen.addEventListener("click", async () => {
 // --- ENVIAR HORARIO ---
 localparent.addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("¡Formulario validado y listo para enviarse a Firebase!");
 
     const scheduleData = {};
     const selectors = document.querySelectorAll("select");
@@ -211,10 +211,25 @@ localparent.addEventListener("submit", async (e) => {
     });
 
     try {
-        await setDoc(doc(db, "schedules", auth.currentUser.uid), {
+        const now = new Date();
+        let savedate = now;
+
+        if (now.getDay() === 0) {
+            savedate = new Date(now);
+            savedate.setDate(now.getDate() + 1);
+        }
+
+        const weekinfo = getLocalWeekNumber(savedate);
+        const docId = `${weekinfo.year}_${weekinfo.week}`;
+        const docRef = doc(db, "schedules", auth.currentUser.uid, "scheduled", docId);
+
+        await setDoc(docRef, {
         weekData: scheduleData,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        weekNumber: infoSemana.week,
+        year: infoSemana.year
         });
+        
         alert("Horario gaurdado!");
         location.reload();
     } catch (error) {

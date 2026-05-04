@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBkcY2_W3oge3KjBCtpv5y9i2mPWlVl5nE",
@@ -62,6 +62,16 @@ function formatHour(index) {
     const h = Math.floor(totalMinutes / 60) % 24;
     const m = totalMinutes % 60;
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+}
+
+function getLocalWeekNumber(d) {
+    // Copiamos la fecha para no modificar la original
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // El lunes es el primer día de la semana en este cálculo
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return { week: weekNo, year: d.getUTCFullYear() };
 }
 
 function getCurrentSlot() {
@@ -154,9 +164,9 @@ function renderTimeline(weekData, completedCount, userId) {
     }
 }
 
-function renderProgress(list) {
-    const dailypercentage = list[1]*100/33;
-    const weeklypercentage = list[1]*100/231;
+function renderProgress(list, collect) {
+    const dailypercentage = (list[1] * 100) / 33;
+    const weeklypercentage = (collect * 100) / 231;
 
     dailyprog.style.width = `${dailypercentage}%`;
     weeklyprog.style.width = `${weeklypercentage}%`;
@@ -165,20 +175,43 @@ function renderProgress(list) {
     weeklyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = `${Math.floor(weeklypercentage)}%`;
 }
 
+async function getWeeklyTotal(userId) {
+    const progressColRef = collection(db, "schedules", userId, "dailyProgress");
+    const querySnapshot = await getDocs(progressColRef);
+    
+    let totalWeekly = 0;
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.completedCount && data.completedCount[1]) {
+            totalWeekly += data.completedCount[1];
+        }
+    });
+    
+    return totalWeekly;
+}
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        const docRef = doc(db, "schedules", user.uid);
+        // DAY LOGIC
+        const hoy = getLocalWeekNumber(new Date());
+        const docIdActual = `${hoy.year}_${hoy.week}`;
+
+        const docRef = doc(db, "schedules", user.uid, "scheduled", docIdActual);
         const docSnap = await getDoc(docRef);
 
-        // PROGRESS
+        // PROGRESS DAY
         const progressRef = doc(db, "schedules", user.uid, "dailyProgress", getTodayID());
         const progressSnap = await getDoc(progressRef);
         let completedCount = progressSnap.exists() ? progressSnap.data().completedCount : [0, 0];
 
+        //PROGRESS WEEK
+        const totalWeekly = await getWeeklyTotal(user.uid);
+
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
             renderTimeline(data, completedCount, user.uid);
-            renderProgress(completedCount);
+            renderProgress(completedCount, totalWeekly);
         } else {
             calendarcontainer.innerHTML = `
                 <h1>CALENDAR</h1>
