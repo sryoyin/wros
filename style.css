@@ -414,3 +414,67 @@ form button:hover {
     padding: 10px 0;
     justify-content: flex-start;
 }
+
+/* --- RESPONSIVE DESIGN --- */
+
+/* Laptops y Tablets (1024px o menos) */
+@media (max-width: 1024px) {
+    form, .⬜, .🟦 {
+        margin: 0 5%;
+        padding: 30px;
+    }
+
+    nav button {
+        padding: 20px 20px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 80px;
+    }
+
+    .⬜, .🟦 {
+        flex-direction: column;
+        text-align: center;
+        margin: 0 2%;
+    }
+
+    .⬜ img, .🟦 img {
+        width: 80%;
+        margin-bottom: 20px;
+    }
+
+    nav {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav section {
+        width: 100%;
+        justify-content: center;
+    }
+
+    nav button {
+        padding: 10px 15px;
+        font-size: 14px;
+        flex-direction: column; /* Icono arriba, texto abajo */
+        gap: 5px;
+    }
+
+    .⚙️ {
+        width: 100% !important; 
+    }
+
+    .📋 {
+        display: grid;
+        grid-template-columns: 80px repeat(7, 120px); /* Columnas mínimas fijas */
+        overflow-x: auto; /* Permite scroll horizontal solo dentro de la tabla */
+    }
+    
+    #schedule {
+        overflow-x: auto;
+        display: block; /* Cambiamos el flex para evitar conflictos de ancho */
+    }
+}
