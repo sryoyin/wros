@@ -431,7 +431,7 @@ form button:hover {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 852px) {
     body {
         padding-top: 120px;
     }
@@ -442,8 +442,17 @@ form button:hover {
     }
 
     .⬜ img, .🟦 img {
-        width: 80%;
+        max-width: 80%;
         margin-bottom: 20px;
+    }
+
+    .⬜ .🧱 {
+        justify-content: center;
+        width: 80%;
+    }
+
+    .⬜ .🧱 img {
+        margin: 0;
     }
 
     nav {
@@ -476,6 +485,10 @@ form button:hover {
     #schedule {
         overflow-x: auto;
         display: block;
+    }
+
+    🗓️ section {
+        gap: 15px;
     }
 }
 
