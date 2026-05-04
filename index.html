@@ -7,7 +7,7 @@
         <title>White Room - Welcome</title>
         <script>
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js')
+                navigator.serviceWorker.register('scripts/sw.js')
                 .then(() => console.log("White Room PWA Ready"));
             }
         </script>
