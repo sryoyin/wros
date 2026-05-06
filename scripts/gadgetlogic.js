@@ -37,6 +37,9 @@ const getTodayID = () => {
 async function saveProgress(userId, slotsobv, counter, parent) {
     // Reference: schedules -> usuario -> dailyProgress -> fechaHoy
     const progressRef = doc(db, "schedules", userId, "dailyProgress", getTodayID());
+    parent.style.pointerEvents = "none";
+    parent.style.opacity = "0";
+    parent.style.visibility = "hidden";
     
     try {
         await setDoc(progressRef, { 
@@ -48,7 +51,6 @@ async function saveProgress(userId, slotsobv, counter, parent) {
         
         console.log("Progreso actualizado");
         location.reload();
-        parent.style.opacity = "0";
     } catch (error) {
         console.error("Error al guardar progreso:", error);
     }
