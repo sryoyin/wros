@@ -305,7 +305,7 @@ form button:hover {
 .⚙️ {
     display: flex;
     flex-direction: column;
-    width: 140%;
+    width: 130%;
     border: #000000;
     border-width: 2px;
     border-style: outset;
@@ -330,6 +330,23 @@ form button:hover {
 .🗓️ section {
     display: flex;
     justify-content: space-between;
+}
+
+.🗓️ button {
+    width: 100%;
+}
+
+/* NOTAS */
+.🗒️ {
+    background-color: ghostwhite;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--nav-bg);
+    word-break: break-word;
+    flex-grow: 1;
+    margin: 0;
 }
 
 /* CALENDAR */

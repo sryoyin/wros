@@ -200,6 +200,28 @@ async function getWeeklyTotal(userId) {
     return totalWeekly;
 }
 
+async function saveData(userId, data) {
+    const noteRef = doc(db, "users", userId);
+
+    try {
+        await setDoc(noteRef, { 
+            "notes": data
+        });
+        alert("Notas actualizadas!");
+    } catch (error) {
+        console.error("Error al guardar progreso:", error);
+    }
+}
+
+function renderNotes(data, userId) {
+    const container = document.getElementById("note-gadget-container");
+    const send = document.getElementById("note-gadget-updater")
+
+    container.value = data;
+
+    send.onclick = () => saveData(userId, container.value)
+}
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         // DAY LOGIC
@@ -214,8 +236,13 @@ onAuthStateChanged(auth, async (user) => {
         const progressSnap = await getDoc(progressRef);
         let completedCount = progressSnap.exists() ? progressSnap.data().completedCount : [0, 0];
 
-        //PROGRESS WEEK
+        // PROGRESS WEEK
         const totalWeekly = await getWeeklyTotal(user.uid);
+
+        // NOTE LOGIC
+        const noteRef = doc(db, "users", user.uid,);
+        const noteSnap = await getDoc(noteRef);
+        const noteData = noteSnap.exists() ? progressSnap.data().notes : "";
 
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
@@ -231,6 +258,7 @@ onAuthStateChanged(auth, async (user) => {
                 <h2>No progress made yet</h2>
             `;
         }
+        renderNotes(noteData, user.uid);
     }
     hideLoader();
 });

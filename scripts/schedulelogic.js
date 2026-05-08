@@ -169,7 +169,6 @@ onAuthStateChanged(auth, async (user) => {
             const savedLabels = userSnap.data().customLabels;
             // Actualizamos el array global antes de cualquier renderizado
             options = [...new Set([...options, ...savedLabels])];
-            console.log("Etiquetas cargadas y actualizadas!", options);
         }
 
         // 2. RECIÉN AHORA VERIFICAMOS EL HORARIO
