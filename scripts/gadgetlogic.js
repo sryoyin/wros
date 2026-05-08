@@ -242,7 +242,7 @@ onAuthStateChanged(auth, async (user) => {
         // NOTE LOGIC
         const noteRef = doc(db, "users", user.uid,);
         const noteSnap = await getDoc(noteRef);
-        const noteData = noteSnap.exists() ? noteSnap.data().notes : "";
+        const noteData = noteSnap.data()?.notes || "";
 
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
