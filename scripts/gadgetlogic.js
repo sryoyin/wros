@@ -206,7 +206,7 @@ async function saveData(userId, data) {
     try {
         await setDoc(noteRef, { 
             "notes": data
-        });
+        }, { merge: true });
         alert("Notas actualizadas!");
     } catch (error) {
         console.error("Error al guardar progreso:", error);
@@ -242,7 +242,7 @@ onAuthStateChanged(auth, async (user) => {
         // NOTE LOGIC
         const noteRef = doc(db, "users", user.uid,);
         const noteSnap = await getDoc(noteRef);
-        const noteData = noteSnap.exists() ? progressSnap.data().notes : "";
+        const noteData = noteSnap.exists() ? noteSnap.data().notes : "";
 
         if (docSnap.exists()) {
             const data = docSnap.data().weekData;
