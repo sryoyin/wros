@@ -334,6 +334,7 @@ form button:hover {
 
 .🗓️ button {
     width: 100%;
+    margin: 0;
 }
 
 /* NOTAS */
@@ -348,6 +349,7 @@ form button:hover {
     flex-grow: 1;
     margin: 0;
     resize: none;
+    height: 130px;
 }
 
 /* CALENDAR */
