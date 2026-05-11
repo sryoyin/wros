@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, increment, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, increment, collection, getDocs, query, where, documentId } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBkcY2_W3oge3KjBCtpv5y9i2mPWlVl5nE",
@@ -23,9 +23,8 @@ const weeklyprog = document.getElementById("weeklybar");
 const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 const getWeeklyRange = () => {
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 0 (Dom) a 6 (Sab)
+    const dayOfWeek = now.getDay();
     
-    // Ajuste para que Lunes sea el día 0 y Domingo el día 6
     const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     
     const monday = new Date(now);
@@ -208,10 +207,11 @@ function renderProgress(list, collect) {
 
 async function getWeeklyTotal(userId) {
     const { start, end } = getWeeklyRange();
+    const progressColRef = collection(db, "schedules", userId, "dailyProgress");
     const q = query(
-        collection(db, "schedules", userId, "dailyProgress"),
-        where("__name__", ">=", start),
-        where("__name__", "<=", end)
+        progressColRef,
+        where(documentId(), ">=", start),
+        where(documentId(), "<=", end)
     );
 
     const querySnapshot = await getDocs(q);
@@ -219,8 +219,9 @@ async function getWeeklyTotal(userId) {
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.completedCount && data.completedCount[1]) {
-            totalWeekly += data.completedCount[1];
+        if (data.completedCount) {
+            const valorSemanal = data.completedCount[1] || 0;
+            totalWeekly += Number(valorSemanal);
         }
     });
     
