@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, increment, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBkcY2_W3oge3KjBCtpv5y9i2mPWlVl5nE",
@@ -21,6 +21,28 @@ const progcontainer = document.getElementById("prog-gadget");
 const dailyprog = document.getElementById("dailybar");
 const weeklyprog = document.getElementById("weeklybar");
 const diasSemana = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+const getWeeklyRange = () => {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 (Dom) a 6 (Sab)
+    
+    // Ajuste para que Lunes sea el día 0 y Domingo el día 6
+    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - diffToMonday);
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const formatDate = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    return { start: formatDate(monday), end: formatDate(sunday) };
+};
 
 // --- IMPORTED LOGIC ---
 import { hideLoader } from "./mainlogic.js";
@@ -185,9 +207,14 @@ function renderProgress(list, collect) {
 }
 
 async function getWeeklyTotal(userId) {
-    const progressColRef = collection(db, "schedules", userId, "dailyProgress");
-    const querySnapshot = await getDocs(progressColRef);
-    
+    const { start, end } = getWeeklyRange();
+    const q = query(
+        collection(db, "schedules", userId, "dailyProgress"),
+        where("__name__", ">=", start),
+        where("__name__", "<=", end)
+    );
+
+    const querySnapshot = await getDocs(q);
     let totalWeekly = 0;
 
     querySnapshot.forEach((doc) => {
