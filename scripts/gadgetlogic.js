@@ -207,7 +207,10 @@ function renderProgress(list, collect) {
 
 async function getWeeklyTotal(userId) {
     const { start, end } = getWeeklyRange();
+    console.log(`Buscando entre: ${start} y ${end}`);
+    
     const progressColRef = collection(db, "schedules", userId, "dailyProgress");
+
     const q = query(
         progressColRef,
         where(documentId(), ">=", start),
@@ -219,12 +222,15 @@ async function getWeeklyTotal(userId) {
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
+        console.log(`Documento encontrado: ${doc.id}`, data); // Debug para ver qué trae
+        
         if (data.completedCount) {
-            const valorSemanal = data.completedCount[1] || 0;
-            totalWeekly += Number(valorSemanal);
+            const valor = data.completedCount["1"] || data.completedCount[1] || 0;
+            totalWeekly += Number(valor);
         }
     });
     
+    console.log("Total semanal calculado:", totalWeekly);
     return totalWeekly;
 }
 
