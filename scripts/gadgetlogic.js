@@ -195,14 +195,18 @@ function renderTimeline(weekData, completedCount, userId) {
 }
 
 function renderProgress(list, collect) {
-    const dailypercentage = (list[1] * 100) / 33;
-    const weeklypercentage = (collect * 100) / 231;
+    const dailyValue = Number(list[1] || list["1"] || 0);
+    const dailypercentage = (dailyValue * 100) / 33;
+    const weeklypercentage = (Number(collect) * 100) / 231;
 
-    dailyprog.style.width = `${dailypercentage}%`;
-    weeklyprog.style.width = `${weeklypercentage}%`;
+    if (dailyprog) dailyprog.style.width = `${dailypercentage}%`;
+    if (weeklyprog) weeklyprog.style.width = `${weeklypercentage}%`;
 
-    dailyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = `${Math.floor(dailypercentage)}%`;
-    weeklyprog.parentElement.parentElement.firstElementChild.lastElementChild.textContent = `${Math.floor(weeklypercentage)}%`;
+    const dailyText = document.querySelector("#dailybar")?.closest('.🗓️').querySelector('p:last-child');
+    const weeklyText = document.querySelector("#weeklybar")?.closest('.🗓️').querySelector('p:last-child');
+
+    if (dailyText) dailyText.textContent = `${Math.floor(dailypercentage)}%`;
+    if (weeklyText) weeklyText.textContent = `${Math.floor(weeklypercentage)}%`;
 }
 
 async function getWeeklyTotal(userId) {
